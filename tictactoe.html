@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tic Tac Toe - Freedom Play</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+      background: #f4f4f4;
+    }
+    h1 { color: #333; }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 10px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      cursor: pointer;
+      border: 2px solid #333;
+    }
+    .mode-btn {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Tic Tac Toe</h1>
+<div>
+  <button class="mode-btn" onclick="setMode('friend')">Play with Friend</button>
+  <button class="mode-btn" onclick="setMode('computer')">Play with Computer</button>
+</div>
+
+<div class="board" id="board"></div>
+<p id="status"></p>
+
+<script>
+  const board = document.getElementById('board');
+  const status = document.getElementById('status');
+  let cells = Array(9).fill(null);
+  let currentPlayer = 'X';
+  let gameOver = false;
+  let mode = 'friend';
+
+  function setMode(selectedMode) {
+    mode = selectedMode;
+    resetGame();
+  }
+
+  function drawBoard() {
+    board.innerHTML = '';
+    cells.forEach((cell, i) => {
+      const div = document.createElement('div');
+      div.className = 'cell';
+      div.textContent = cell || '';
+      div.addEventListener('click', () => makeMove(i));
+      board.appendChild(div);
+    });
+  }
+
+  function makeMove(index) {
+    if (gameOver || cells[index]) return;
+    cells[index] = currentPlayer;
+    drawBoard();
+    if (checkWin(currentPlayer)) {
+      status.textContent = `${currentPlayer} wins!`;
+      gameOver = true;
+      return;
+    }
+    if (cells.every(cell => cell)) {
+      status.textContent = "It's a draw!";
+      gameOver = true;
+      return;
+    }
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+
+    if (mode === 'computer' && currentPlayer === 'O') {
+      setTimeout(computerMove, 500);
+    }
+  }
+
+  function computerMove() {
+    const emptyIndices = cells.map((val, idx) => val === null ? idx : null).filter(v => v !== null);
+    const move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+    makeMove(move);
+  }
+
+  function checkWin(player) {
+    const winPatterns = [
+      [0,1,2], [3,4,5], [6,7,8],
+      [0,3,6], [1,4,7], [2,5,8],
+      [0,4,8], [2,4,6]
+    ];
+    return winPatterns.some(pattern => pattern.every(i => cells[i] === player));
+  }
+
+  function resetGame() {
+    cells = Array(9).fill(null);
+    currentPlayer = 'X';
+    gameOver = false;
+    status.textContent = '';
+    drawBoard();
+  }
+
+  drawBoard();
+</script>
+
+</body>
+</html>
